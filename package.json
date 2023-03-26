@@ -1,0 +1,29 @@
+{
+  "name": "phonebook",
+  "version": "1.0.0",
+  "description": "phonebook app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GuyGalvarino/phonebook.git"
+  },
+  "author": "Sagnik Ghosh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GuyGalvarino/phonebook/issues"
+  },
+  "homepage": "https://github.com/GuyGalvarino/phonebook#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
