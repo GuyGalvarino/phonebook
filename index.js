@@ -1,3 +1,4 @@
+require('dotenv').config()
 const cors = require('cors')
 const express = require('express')
 const morgan = require('morgan')
@@ -5,7 +6,7 @@ const Person = require('./mongo')
 
 const app = express()
 
-morgan.token('json', (request, response) => {
+morgan.token('json', (request) => {
     if (request.method === 'POST'
         && request.get('content-type') === 'application/json') {
         return JSON.stringify(request.body)
@@ -16,7 +17,7 @@ morgan.token('json', (request, response) => {
 app.use(express.static('build'))
 app.use(cors())
 app.use(express.json())
-app.use(morgan(':method :url :status :req[content-length] - :response-time ms :json'))
+app.use(morgan(':method :url :status :req[content-length] :response-time ms :json'))
 
 app.get('/info', (request, response, next) => {
     Person.find({}).count()
@@ -29,7 +30,7 @@ app.get('/info', (request, response, next) => {
 })
 
 app.get('/api/persons', (request, response, next) => {
-    const data = Person.find({})
+    Person.find({})
         .then(res => response.json(res))
         .catch(e => next(e))
 })
@@ -49,7 +50,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then((res) => response.status(204).end())
+        .then(() => response.status(204).end())
         .catch(e => next(e))
 })
 
@@ -78,8 +79,11 @@ app.put('/api/persons/:id', (request, response, next) => {
     }
     console.log(updatedPerson)
 
-    Person.findByIdAndUpdate(request.params.id, updatedPerson, { new: true })
-        .then(res => response.json(res))
+    Person.findByIdAndUpdate(request.params.id, updatedPerson, { new: true, runValidators: true })
+        .then(res => {
+            if (res) { response.json(res) }
+            else { response.status(404).end() }
+        })
         .catch(e => next(e))
 })
 
@@ -91,6 +95,9 @@ const logErr = (error, request, response, next) => {
 const errorHandler = (error, request, response, next) => {
     if (error.name === 'CastError') {
         return response.status(400).json({ error: 'malformatted id' })
+    }
+    else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
     }
     response.status(500).json({ error: 'something broke!' })
 }
